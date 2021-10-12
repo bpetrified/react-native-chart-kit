@@ -14,6 +14,7 @@ export interface AbstractChartProps {
   xAxisLabel?: string;
   xLabelsOffset?: number;
   hidePointsAtIndex?: number[];
+  maxValue?: number;
 }
 
 export interface AbstractChartConfig extends ChartConfig {
@@ -43,7 +44,10 @@ class AbstractChart<
 > extends Component<AbstractChartProps & IProps, AbstractChartState & IState> {
   calcScaler = (data: number[]) => {
     if (this.props.fromZero) {
-      return Math.max(...data, 0) - Math.min(...data, 0) || 1;
+      return (
+        Math.max(...data, 0, this.props.maxValue || 0) - Math.min(...data, 0) ||
+        1
+      );
     } else if (this.props.fromNumber) {
       return (
         Math.max(...data, this.props.fromNumber) -
@@ -56,7 +60,7 @@ class AbstractChart<
 
   calcBaseHeight = (data: number[], height: number) => {
     const min = Math.min(...data);
-    const max = Math.max(...data);
+    const max = Math.max(...data, this.props.maxValue || 0);
     if (min >= 0 && max >= 0) {
       return height;
     } else if (min < 0 && max <= 0) {
@@ -67,7 +71,7 @@ class AbstractChart<
   };
 
   calcHeight = (val: number, data: number[], height: number) => {
-    const max = Math.max(...data);
+    const max = Math.max(...data, this.props.maxValue || 0);
     const min = Math.min(...data);
 
     if (min < 0 && max > 0) {
